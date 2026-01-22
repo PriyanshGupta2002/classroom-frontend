@@ -56,7 +56,7 @@ const SubjectsList = () => {
         },
         {
           id: "name",
-          accessorKey: "Name",
+          accessorKey: "name",
           size: 200,
           header: () => <p className="column-title">Name</p>,
           cell: ({ getValue }) => (
@@ -66,7 +66,7 @@ const SubjectsList = () => {
         },
         {
           id: "department",
-          accessorKey: "Department",
+          accessorKey: "department",
           size: 150,
           header: () => <p className="column-title">Department</p>,
           cell: ({ getValue }) => (
@@ -76,7 +76,7 @@ const SubjectsList = () => {
         },
         {
           id: "description",
-          accessorKey: "Descripition",
+          accessorKey: "description",
           size: 300,
           header: () => <p className="column-title">Description</p>,
           cell: ({ getValue }) => (
