@@ -11,17 +11,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { DEPARTMENT_OPTIONS } from "@/constants";
-import { subject } from "@/types";
+import { BACKEND_BASE_URL, DEPARTMENT_OPTIONS } from "@/constants";
+
+import { ListResponse, subject } from "@/types";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Search } from "lucide-react";
-import { useMemo, useState } from "react";
+import axios from "axios";
+import { useEffect, useMemo, useState } from "react";
 
 const SubjectsList = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
+  const [departmentsList, setDepartmentsList] =
+    useState<{ label: string; value: string }[]>();
+
+  const fetchDepartments = async () => {
+    const {
+      data,
+    }: {
+      data: ListResponse;
+    } = await axios.get(`${BACKEND_BASE_URL}/departments`);
+    const formattedData = data.data?.map((item) => ({
+      label: item.name,
+      value: item.code,
+    }));
+    setDepartmentsList(formattedData);
+  };
+
+  useEffect(() => {
+    fetchDepartments();
+  }, []);
 
   const departmentFilters =
     selectedDepartment === "all"
@@ -66,7 +87,7 @@ const SubjectsList = () => {
         },
         {
           id: "department",
-          accessorKey: "department",
+          accessorKey: "department.name",
           size: 150,
           header: () => <p className="column-title">Department</p>,
           cell: ({ getValue }) => (
@@ -134,7 +155,7 @@ const SubjectsList = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Departments</SelectItem>
-                {DEPARTMENT_OPTIONS.map((dep) => (
+                {departmentsList?.map((dep) => (
                   <SelectItem value={dep.value} key={dep.value}>
                     {dep.label}
                   </SelectItem>
