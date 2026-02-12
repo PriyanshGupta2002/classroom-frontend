@@ -11,38 +11,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { BACKEND_BASE_URL, DEPARTMENT_OPTIONS } from "@/constants";
 
-import { ListResponse, subject } from "@/types";
+import { Department, subject } from "@/types";
 import { useTable } from "@refinedev/react-table";
 import { ColumnDef } from "@tanstack/react-table";
 
 import { Search } from "lucide-react";
-import axios from "axios";
-import { useEffect, useMemo, useState } from "react";
+
+import { useMemo, useState } from "react";
+import { useList } from "@refinedev/core";
 
 const SubjectsList = () => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedDepartment, setSelectedDepartment] = useState<string>("");
-  const [departmentsList, setDepartmentsList] =
-    useState<{ label: string; value: string }[]>();
+  // const [departmentsList, setDepartmentsList] =
+  //   useState<{ label: string; value: string }[]>();
 
-  const fetchDepartments = async () => {
-    const {
-      data,
-    }: {
-      data: ListResponse;
-    } = await axios.get(`${BACKEND_BASE_URL}/departments`);
-    const formattedData = data.data?.map((item) => ({
-      label: item.name,
-      value: item.code,
-    }));
-    setDepartmentsList(formattedData);
-  };
+  // const fetchDepartments = async () => {
+  //   const {
+  //     data,
+  //   }: {
+  //     data: ListResponse;
+  //   } = await axios.get(`${BACKEND_BASE_URL}/departments`);
+  //   const formattedData = data.data?.map((item) => ({
+  //     label: item.name,
+  //     value: item.code,
+  //   }));
+  //   setDepartmentsList(formattedData);
+  // };
 
-  useEffect(() => {
-    fetchDepartments();
-  }, []);
+  // useEffect(() => {
+  //   fetchDepartments();
+  // }, []);
+
+  const { query: departmentsQuery } = useList<Department>({
+    resource: "departments",
+    pagination: {
+      pageSize: 100,
+    },
+  });
+
+  const departments = departmentsQuery?.data?.data;
+  const departmentsLoading = departmentsQuery?.isLoading;
 
   const departmentFilters =
     selectedDepartment === "all"
@@ -148,6 +158,7 @@ const SubjectsList = () => {
           <div className="flex gap-2 w-full sm:w-auto">
             <Select
               value={selectedDepartment}
+              disabled={departmentsLoading}
               onValueChange={(value) => setSelectedDepartment(value)}
             >
               <SelectTrigger>
@@ -155,9 +166,9 @@ const SubjectsList = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Departments</SelectItem>
-                {departmentsList?.map((dep) => (
-                  <SelectItem value={dep.value} key={dep.value}>
-                    {dep.label}
+                {departments?.map((dep) => (
+                  <SelectItem value={dep.code} key={dep.code}>
+                    {dep.name}
                   </SelectItem>
                 ))}
               </SelectContent>

@@ -4,7 +4,7 @@ import { CreateView } from "@/components/refine-ui/views/create-view";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { useBack } from "@refinedev/core";
+import { useBack, useList } from "@refinedev/core";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "@refinedev/react-hook-form";
 import * as z from "zod";
@@ -29,6 +29,7 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { Loader } from "lucide-react";
 import UploadWidget from "@/components/upload-widget";
+import { subject, User } from "@/types";
 
 const CreateClass = () => {
   const back = useBack();
@@ -42,30 +43,40 @@ const CreateClass = () => {
   });
 
   const {
+    refineCore: { onFinish },
     handleSubmit,
     formState: { isSubmitting, errors },
     control,
   } = form;
 
-  function onSubmit(data: z.infer<typeof classSchema>) {
+  async function onSubmit(data: z.infer<typeof classSchema>) {
     try {
-      // console.log("")
-      console.log(data);
+      await onFinish(data);
     } catch (error) {
       console.log("Error creating new classes", error);
     }
   }
 
-  const teachers = [
-    { id: "1", name: "Rahul Sharma" },
-    { id: "2", name: "Anita Verma" },
-  ];
+  const { query: subjectsQuery } = useList<subject>({
+    resource: "subjects",
+    pagination: {
+      pageSize: 100,
+    },
+  });
 
-  // Subjects array: id, name, and code (uppercase & shortened)
-  const subjects = [
-    { id: 101, name: "Mathematics", code: "MATH" },
-    { id: 102, name: "Physics", code: "PHYS" },
-  ];
+  const { query: teachersQuery } = useList<User>({
+    resource: "users",
+    filters: [{ field: "role", operator: "eq", value: "teacher" }],
+    pagination: {
+      pageSize: 100,
+    },
+  });
+
+  const subjects = subjectsQuery?.data?.data || [];
+  const subjectsLoading = subjectsQuery.isLoading;
+
+  const teachers = teachersQuery?.data?.data || [];
+  const teachersLoading = teachersQuery.isLoading;
 
   const status = [
     { label: "Active", value: "active" },
@@ -75,7 +86,7 @@ const CreateClass = () => {
   const bannerPublicId = form.watch("bannerCldPubId");
   const setBannerImage = (file: any, field: any) => {
     if (file) {
-      field.onChange(file);
+      field.onChange(file?.url);
       form.setValue("bannerCldPubId", file.publicId, {
         shouldValidate: true,
         shouldDirty: true,
@@ -117,6 +128,7 @@ const CreateClass = () => {
                       <FormLabel>
                         Banner Image <span className="text-orange-600">*</span>
                       </FormLabel>
+
                       <FormControl>
                         <UploadWidget
                           value={
@@ -172,6 +184,7 @@ const CreateClass = () => {
                           onValueChange={(value) =>
                             field.onChange(Number(value))
                           }
+                          disabled={subjectsLoading}
                           defaultValue={field?.value?.toString()}
                         >
                           <FormControl>
@@ -206,6 +219,7 @@ const CreateClass = () => {
                           value={field?.value}
                           onValueChange={field.onChange}
                           defaultValue={field?.value}
+                          disabled={teachersLoading}
                         >
                           <FormControl>
                             <SelectTrigger className="w-full">

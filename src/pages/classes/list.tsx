@@ -1,5 +1,5 @@
 const ClassList = () => {
-  return <div></div>;
+  return <div>Class List</div>;
 };
 
 export default ClassList;

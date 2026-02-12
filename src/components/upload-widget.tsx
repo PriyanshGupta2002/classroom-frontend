@@ -57,6 +57,7 @@ const UploadWidget = ({ value = null, onChange, disabled = false }) => {
       window.clearInterval(intervalId);
     };
   }, []);
+  console.log(preview);
 
   const openWidget = () => {
     if (!disabled) widgetRef.current?.open();
