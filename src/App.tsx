@@ -1,4 +1,4 @@
-import { Refine } from "@refinedev/core";
+import { Authenticated, Refine } from "@refinedev/core";
 import { DevtoolsPanel, DevtoolsProvider } from "@refinedev/devtools";
 import { RefineKbar, RefineKbarProvider } from "@refinedev/kbar";
 
@@ -6,6 +6,8 @@ import { BrowserRouter, Route, Routes, Outlet } from "react-router";
 import routerProvider, {
   UnsavedChangesNotifier,
   DocumentTitleHandler,
+  CatchAllNavigate,
+  NavigateToResource,
 } from "@refinedev/react-router";
 
 import { Layout } from "./components/refine-ui/layout/layout";
@@ -21,6 +23,10 @@ import Create from "./pages/subjects/create";
 import { dataProvider } from "./providers/data";
 import ClassList from "./pages/classes/list";
 import CreateClass from "./pages/classes/create";
+import ShowClassDetails from "./pages/classes/show";
+import { authProvider } from "./providers/AuthProvider";
+import { SignUpForm } from "./components/refine-ui/form/sign-up-form";
+import { SignInForm } from "./components/refine-ui/form/sign-in-form";
 
 function App() {
   return (
@@ -32,6 +38,7 @@ function App() {
               dataProvider={dataProvider}
               notificationProvider={useNotificationProvider()}
               routerProvider={routerProvider}
+              authProvider={authProvider}
               options={{
                 syncWithLocation: true,
                 warnWhenUnsavedChanges: true,
@@ -67,6 +74,7 @@ function App() {
                   name: "classes",
                   list: "/classes",
                   create: "/classes/create",
+                  show: "/classes/show/:id",
                   meta: {
                     label: "Classes",
                     icon: <Building />,
@@ -78,7 +86,11 @@ function App() {
                 <Route
                   element={
                     <Layout>
-                      <Outlet />
+                      <Authenticated
+                        fallback={<CatchAllNavigate to="/login" />}
+                      >
+                        <Outlet />
+                      </Authenticated>
                     </Layout>
                   }
                 >
@@ -91,7 +103,19 @@ function App() {
                   <Route path="/classes">
                     <Route index element={<ClassList />} />
                     <Route path="create" element={<CreateClass />} />
+                    <Route path="show/:id" element={<ShowClassDetails />} />
                   </Route>
+                </Route>
+
+                <Route
+                  element={
+                    <Authenticated fallback={<Outlet />}>
+                      <NavigateToResource />
+                    </Authenticated>
+                  }
+                >
+                  <Route path="/login" element={<SignInForm />} />
+                  <Route path="/register" element={<SignUpForm />} />
                 </Route>
               </Routes>
               <Toaster />

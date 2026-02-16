@@ -22,11 +22,22 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { InputPassword } from "@/components/refine-ui/form/input-password";
 import { cn } from "@/lib/utils";
+import { UserRole } from "@/types";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export const SignUpForm = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [role, setRole] = useState<UserRole>(UserRole.STUDENT);
+  const [name, setName] = useState<string>("");
 
   const { open } = useNotification();
 
@@ -51,22 +62,24 @@ export const SignUpForm = () => {
     }
 
     register({
+      name,
       email,
       password,
+      role,
     });
   };
 
-  const handleSignUpWithGoogle = () => {
-    register({
-      providerName: "google",
-    });
-  };
+  // const handleSignUpWithGoogle = () => {
+  //   register({
+  //     providerName: "google",
+  //   });
+  // };
 
-  const handleSignUpWithGitHub = () => {
-    register({
-      providerName: "github",
-    });
-  };
+  // const handleSignUpWithGitHub = () => {
+  //   register({
+  //     providerName: "github",
+  //   });
+  // };
 
   return (
     <div
@@ -105,7 +118,7 @@ export const SignUpForm = () => {
           <CardDescription
             className={cn("text-muted-foreground", "font-medium")}
           >
-            Welcome to lorem ipsum dolor.
+            Welcome to Classroom
           </CardDescription>
         </CardHeader>
 
@@ -114,6 +127,16 @@ export const SignUpForm = () => {
         <CardContent className={cn("px-0")}>
           <form onSubmit={handleSignUp}>
             <div className={cn("flex", "flex-col", "gap-2")}>
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                type="text"
+                required
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div className={cn("flex", "flex-col", "gap-2", "mt-6")}>
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
@@ -136,17 +159,36 @@ export const SignUpForm = () => {
                 required
               />
             </div>
-
             <div
               className={cn("relative", "flex", "flex-col", "gap-2", "mt-6")}
             >
-              <Label htmlFor="confirmPassword">Confirm password</Label>
+              <Label htmlFor="confirmPassword">Confirm Password</Label>
               <InputPassword
                 id="confirmPassword"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
               />
+            </div>
+
+            <div
+              className={cn("relative", "flex", "flex-col", "gap-2", "mt-6")}
+            >
+              <Label htmlFor="selectRole">Select Role</Label>
+              <Select
+                value={role}
+                onValueChange={(value) => setRole(value as UserRole)}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select Role" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    <SelectItem value={UserRole.STUDENT}>Student</SelectItem>
+                    <SelectItem value={UserRole.TEACHER}>Teacher</SelectItem>
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
             </div>
 
             <Button
@@ -158,18 +200,13 @@ export const SignUpForm = () => {
                 "bg-green-600",
                 "hover:bg-green-700",
                 "text-white",
+                "cursor-pointer",
               )}
             >
               Sign up
             </Button>
 
-            <div className={cn("flex", "items-center", "gap-4", "mt-6")}>
-              <Separator className={cn("flex-1")} />
-              <span className={cn("text-sm", "text-muted-foreground")}>or</span>
-              <Separator className={cn("flex-1")} />
-            </div>
-
-            <div className={cn("flex", "flex-col", "gap-4", "mt-6")}>
+            {/* <div className={cn("flex", "flex-col", "gap-4", "mt-6")}>
               <div className={cn("grid grid-cols-2", "gap-6")}>
                 <Button
                   variant="outline"
@@ -214,7 +251,7 @@ export const SignUpForm = () => {
                   <div>GitHub</div>
                 </Button>
               </div>
-            </div>
+            </div> */}
           </form>
         </CardContent>
 
